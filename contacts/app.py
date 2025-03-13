@@ -1,32 +1,26 @@
 """_summary_"""
 
+import pickle
+
 contacts = []
 
 TITLE = "phone book"
 
-contact = {
-    'first_name': 'john',
-    'last_name': 'doe',
-    'mobile': '1234567'
-}
+def save_contact(contacts):
+    with open('db.pkl', 'wb') as f:
+        pickle.dump(contacts, f)
 
-contacts.append(contact)
+# contact = {
+#     'first_name': 'john',
+#     'last_name': 'doe',
+#     'mobile': '1234567'
+# }
 
-# for key in contact:
-#     print(key)
-    
-for key in contact:
-    print(contact[key])
-# print(contacts)
-# print(dir(contacts))
-# print(contact)
-# print(type(contact))
-# print(id(contact))
-# print(dir(contact))
-# print(contacts[0])
-# print(contacts[len(contacts) - 1])
+# contacts.append(contact)
+# save_contact(contacts)
 
-def contact_list():
+
+def contact_list(contacts):
     if len(contacts) > 0:
         for item in contacts:
             for k,v in item.items():
@@ -34,8 +28,6 @@ def contact_list():
     else:
         print("Your contact list is empty. Go back to menu and add new contact.")
 
-
-# contact_list()
 
 def your_choice():
     return input(f"Please make Your choice (l|a|u|d|h|q) >>> ")
@@ -101,24 +93,36 @@ def update_contact(contact):
     
     return {'first_name': first_name.lower(), 'last_name': last_name.lower(), 'mobile': mobile}
 
-def main():
+def load_contact(db_name):
+    unpiclled = []
+    # with open('db.pkl', 'rb') as f:
+    with open(db_name, 'rb') as f:
+        unpiclled = pickle.load(f)
+    return unpiclled
+
+def main(db_name):
     hi()
+    contacts = load_contact(db_name)
+    
     while True:
         match your_choice():
             case 'a':
                 contacts.append(add_contact())
+                save_contact(contacts)
             case 'l':
-                contact_list()
+                contact_list(contacts)
             case 'u':
                 name = input("What You looking for? ")
                 contact = lookup_contact(name)
                 contact.update(update_contact(contact))
+                save_contact(contacts)
             case 'd':
                 name = input("What You looking for? ")
                 contact = lookup_contact(name)
                 contact = remove_contact(contact)
                 if contact:
                     print("Contact removed successfuly.")
+                    save_contact(contacts)
             case 'h':
                 help_me()
             case 'q':
@@ -126,7 +130,20 @@ def main():
                 break
             case _:
                 help_me()
-                
-main()            
-            
+         
+import sys
 
+# print(sys.argv)
+# print(sys.argv[1])
+
+# print(db_name)
+
+if (args_cont := len(sys.argv)) > 2:
+    print(f"One argument expected, got {args_cont -1}")
+    raise SystemExit(1)
+elif args_cont < 2:
+    print(f"You must specify the database name")
+    raise SystemExit(1)
+
+db_name = sys.argv[1]
+main(db_name)            
