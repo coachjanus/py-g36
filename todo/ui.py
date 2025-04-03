@@ -1,9 +1,22 @@
-from todo import __app_name__
+from todo import __app_name__, __version__
 
 from todo.tasks import TaskList
 
 from rich.table import Table
 from rich.console import Console
+from rich.prompt import Prompt
+import typer
+
+def make_title(fn):
+    def wrapper():
+        func = fn()
+        output = func.title()
+        return output
+    return wrapper
+
+@make_title
+def to_upper():
+    return f"Coose sone category"
 
 class UI:
     
@@ -16,12 +29,44 @@ class UI:
         ["Done", None, None, 12, "right"],
     ]
     
+    
+    COLORS = {
+        'LEARN': 'yellow',
+        'WORK': 'red',
+        'SPORT': 'cyan',
+        'STUDY': 'green'
+    }
+    
+    DONE = chr(9989)
+    PENDING = chr(10060)
+    
+    # @classmethod
+    def join_category(self):
+        res = ""
+        for k, v in UI.COLORS.items():
+            res += f"[bold white on {v}] {k} [/]"
+        return res
+    
+    @staticmethod
+    def get_category_color(category):
+        if category in UI.COLORS:
+            return UI.COLORS[category]
+        return "white"
+    
+    
+
+    def choose_category(self):
+        # return f"[bold green on blue]{to_upper()}: [/] {self.join_category()}"
+        return Prompt.ask("[bold green on white] Coose some category: [/]" + self.join_category(), default="WORK")
+
+    
+    
     def __init__(self):
         self.task_list = TaskList()
         self.console = Console()
     
-    def help_me(self):
-        print("""
+    def help_me(self): 
+        typer.secho("""
         All that You can do:
             l: Show all tasks
             a: Add new task
@@ -29,16 +74,19 @@ class UI:
             d: Delete existing task
             h: Print this help
             q: Exit
-        """)
+        """, fg=typer.colors.RED)
     
     def bye(self):
         print(f"Thanks for using {__app_name__}.upper()")
     
     def hi(self):
-        print(f"Hi! It's me, {__app_name__.upper()}")
+        self.console.print(f"[bold magenta] Hi! It's me, {__app_name__.upper()} [/]", chr(128187), f"[bold magenta] {__version__}")
+        # print(f"Hi! It's me, {__app_name__.upper()}")
     
     def your_choice(self):
-        return input(f"Please make Your choice (l|a|u|d|h|q) >>> ")
+        # return input(f"Please make Your choice (l|a|u|d|h|q) >>> ")
+        return Prompt.ask(f"[bold yellow on blue] Please make Your choice (l|a|u|d|h|q) >>>  [/]")
+    
 
     def prompt_for_lookup(self):
         return input("What You looking for? ")
@@ -46,7 +94,8 @@ class UI:
     def add_task(self):
                 
         description = input("Enter task description: ").strip().lower()
-        category = input("Enter task category: ").strip().upper()
+        # category = input("Enter task category: ").strip().upper()
+        category = self.choose_category()
         self.task_list.add(description, category)
 
 
@@ -114,6 +163,11 @@ class UI:
         
         for item in header:
             table.add_column(item['name'], style=item['style'], width=item['width'], min_width=item['min_width'], justify=item['justify'])
+        
+        for index, task in enumerate(tasks, start=1):
+            c = UI.get_category_color(task._category)
+            is_done = UI.DONE if task._status == True else UI.PENDING
+            table.add_row(str(index), task._description, f"[{c}] {task._category} [/{c}]", is_done)
             
         self.console.print(table)
         

@@ -1,6 +1,10 @@
 from todo.ui import UI
+import typer
 
-def app():
+app = typer.Typer()
+
+@app.command()
+def run():
     ui = UI()
     
     ui.hi()
