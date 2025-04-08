@@ -1,7 +1,26 @@
 from todo.ui import UI
 import typer
+from todo import config, ERRORS, db
+from pathlib import Path
 
 app = typer.Typer()
+
+@app.command()
+def init(
+    db_path = typer.Option(str(config.DEFAULT_DB_FILE_PATH), prompt="TODO database location?")):
+    app_init_error = config.init_app(db_path)
+    
+    if app_init_error:
+        typer.secho(f"Crerating config file failed with {ERRORS[app_init_error]}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    
+    db_init_error = db.init_database(Path(db_path))
+    if db_init_error:
+        typer.secho(f"Crerating database failed with {ERRORS[db_init_error]}", fg=typer.colors.RED)
+        raise typer.Exit(1)
+    
+    typer.secho(f"The todo database id {db_path}", fg=typer.colors.GREEN)
+    
 
 @app.command()
 def run():

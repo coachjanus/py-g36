@@ -1,4 +1,4 @@
-from todo import __app_name__, __version__
+from todo import __app_name__, __version__, config, db
 
 from todo.tasks import TaskList
 
@@ -62,8 +62,21 @@ class UI:
     
     
     def __init__(self):
-        self.task_list = TaskList()
+        # self.task_list = TaskList()
+        self.task_list = self.get_tasks()
         self.console = Console()
+        
+    def get_tasks(self):
+        if config.CONFIG_FILE_PATH.exists():
+            db_path = db.get_database_path(config.CONFIG_FILE_PATH)
+        else:
+            typer.secho("Config file not found. Please run todo init", fg=typer.colors.RED)
+            raise typer.Exit(1)
+        if db_path.exists():
+            return TaskList(db_path)
+        else:
+            typer.secho("Database not found. Please run todo init", fg=typer.colors.RED)
+            raise typer.Exit(1)
     
     def help_me(self): 
         typer.secho("""
@@ -142,7 +155,7 @@ class UI:
         update_contact(db_name, contacts, contact, {'first_name': first_name.lower(), 'last_name': last_name.lower(), 'mobile': mobile})
     
     def all_task(self):
-        tasks = self.task_list.get_todo_list()
+        tasks = self.task_list.get_tasks_list()
         if len(tasks) > 0:
             print(tasks)
             self.show(tasks)
