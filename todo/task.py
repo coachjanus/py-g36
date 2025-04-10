@@ -1,4 +1,10 @@
 import datetime
+import json
+
+
+class TaskEncoder(json.JSONEncoder):
+    def default(self, o):
+        return o.__dict__
 
 class Task:
     
@@ -12,3 +18,5 @@ class Task:
         
     def __repr__(self):
         return f"({self._description}, {self._category}, {self._added_at}, {self._completed_at}, {self._status}, {self._position})"
+    
+    

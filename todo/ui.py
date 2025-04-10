@@ -1,4 +1,4 @@
-from todo import __app_name__, __version__, config, db
+from todo import __app_name__, __version__, config, db, ERRORS
 
 from todo.tasks import TaskList
 
@@ -6,6 +6,7 @@ from rich.table import Table
 from rich.console import Console
 from rich.prompt import Prompt
 import typer
+from todo.task import Task
 
 def make_title(fn):
     def wrapper():
@@ -61,7 +62,7 @@ class UI:
 
     
     
-    def __init__(self):
+    def __init__(self) -> None:
         # self.task_list = TaskList()
         self.task_list = self.get_tasks()
         self.console = Console()
@@ -100,18 +101,63 @@ class UI:
         # return input(f"Please make Your choice (l|a|u|d|h|q) >>> ")
         return Prompt.ask(f"[bold yellow on blue] Please make Your choice (l|a|u|d|h|q) >>>  [/]")
     
-
-    def prompt_for_lookup(self):
+    def prompt_for_lookup(self) -> str:
         return input("What You looking for? ")
+    
+    def add_your_task(self) -> str:
+        return Prompt.ask("[bold green on blue] Text Your task [/]", default="Todo something else")
 
     def add_task(self):
                 
-        description = input("Enter task description: ").strip().lower()
+        # description = input("Enter task description: ").strip().lower()
+        description = self.add_your_task()
         # category = input("Enter task category: ").strip().upper()
         category = self.choose_category()
-        self.task_list.add(description, category)
+        current_todo = Task(description, category)
+        current_todo, write_error = self.task_list.add(current_todo)
+        
+        if write_error:
+            typer.secho(f"Added task failed with {write_error}", fg=typer.colors.RED)
+            raise typer.Exit(1)
+        typer.secho(f"Task {description} was added to todo database with {category}", fg=typer.colors.GREEN)
+        
+        # self.task_list.add(description, category)
 
 
+   
+    def all_task(self):
+        tasks, error = self.task_list.get_tasks_list()
+        if error:
+            typer.secho(f"Fetching tasks failed with {ERRORS[error]}", fg=typer.colors.RED)
+            raise typer.Exit(1)
+        else:
+            if len(tasks) == 0:
+                typer.secho(f"There are no tasks in the todo list", fg=typer.colors.RED)
+                raise typer.Exit(1)
+            self.show(tasks)
+            
+    def make_header(self):
+        headers = []
+        for v in UI.values:
+            d = dict(zip(UI.keys, v))
+            headers.append(d)
+        return headers
+    
+    
+    def show(self, tasks):
+        table = Table(show_header=True, header_style="bold blue")
+        header = self.make_header()
+        
+        for item in header:
+            table.add_column(item['name'], style=item['style'], width=item['width'], min_width=item['min_width'], justify=item['justify'])
+        
+        for index, task in enumerate(tasks, start=1):
+            c = UI.get_category_color(task['_category'])
+            is_done = UI.DONE if task['_status'] == True else UI.PENDING
+            table.add_row(str(index), task['_description'], f"[{c}] {task['_category']} [/{c}]", is_done)
+            
+        self.console.print(table)
+        
     def remove_task(self):
         contacts = get_all_contacts(db_name)
         name = prompt_for_lookup()
@@ -154,33 +200,3 @@ class UI:
         
         update_contact(db_name, contacts, contact, {'first_name': first_name.lower(), 'last_name': last_name.lower(), 'mobile': mobile})
     
-    def all_task(self):
-        tasks = self.task_list.get_tasks_list()
-        if len(tasks) > 0:
-            print(tasks)
-            self.show(tasks)
-        else:
-            print("Your tasl list is empty. Go back to menu and add new task.")
-            
-    def make_header(self):
-        headers = []
-        for v in UI.values:
-            d = dict(zip(UI.keys, v))
-            headers.append(d)
-        return headers
-    
-    
-    def show(self, tasks):
-        table = Table(show_header=True, header_style="bold blue")
-        header = self.make_header()
-        
-        for item in header:
-            table.add_column(item['name'], style=item['style'], width=item['width'], min_width=item['min_width'], justify=item['justify'])
-        
-        for index, task in enumerate(tasks, start=1):
-            c = UI.get_category_color(task._category)
-            is_done = UI.DONE if task._status == True else UI.PENDING
-            table.add_row(str(index), task._description, f"[{c}] {task._category} [/{c}]", is_done)
-            
-        self.console.print(table)
-        
