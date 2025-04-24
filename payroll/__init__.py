@@ -1,27 +1,22 @@
 from flask import Flask
-from payroll import pages
+from payroll import pages, database
+import os
 
-# app = Flask(__name__)
-
-# @app.route('/')
-# def hello():
-#     return '''
-#     <!DOCTYPE html>
-# <html lang="en">
-# <head>
-#     <meta charset="UTF-8">
-#     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-#     <title>Document</title>
-# </head>
-# <body>
-#     <h1 style="color: crimson;">Hello world</h1>
-#     <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Natus perferendis tempora laudantium aut saepe veniam cupiditate ex odit pariatur labore molestiae enim ipsum deleniti rerum, dolor quaerat vero dolorem debitis?</p>
-# </body>
-# </html>
-#     '''
     
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+    
+    app.config.from_mapping(
+        SECRET_KEY = 'dev',
+        DATABASE = os.path.join(app.instance_path, 'payroll.db')
+    )
+    
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
+    
+    database.init_app(app)
     
     app.register_blueprint(pages.bp)
     return app
