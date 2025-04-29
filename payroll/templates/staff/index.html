@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+<div class="container">
+    {% block header %}
+    <div class="d-flex justify-content-between mt-2 align-items-center">
+        <h2>Employees list</h2>
+        {% block create %}
+        <a type="button" class="btn btn-primary" href="">Hire new employee</a>
+        {% endblock create %}
+    </div>
+
+    {% endblock header %}
+</div>
+
+{% block content %}
+<div class="container">
+    <table class="table  table-striped">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Department</th>
+                <th scope="col">Position</th>
+                <th scope="col">Date of hire</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in employees %}
+            <tr>
+                <td>{{ item['emp_id']}}</td>
+                <td>{{ item['employee_name'] }}</td>
+                <td>{{ item['department_name'] }}</td>
+                <td>{{ item['role_name'] }}</td>
+                <td></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+{% endblock content %}

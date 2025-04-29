@@ -1,5 +1,5 @@
 from flask import Flask
-from payroll import pages, database
+from payroll import pages, database, staff
 import os
 
     
@@ -19,6 +19,7 @@ def create_app():
     database.init_app(app)
     
     app.register_blueprint(pages.bp)
+    app.register_blueprint(staff.bp)
     return app
     
     
