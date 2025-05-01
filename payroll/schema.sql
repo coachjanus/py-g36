@@ -1,5 +1,13 @@
 -- schema.sql
 
+DROP TABLE IF EXISTS user;
+
+CREATE TABLE user (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
 DROP TABLE IF EXISTS roles;
 
 CREATE TABLE roles (
@@ -7,9 +15,9 @@ CREATE TABLE roles (
     role_name TEXT UNIQUE NOT NULL
 );
 
-DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS departments;
 
-CREATE TABLE department (
+CREATE TABLE departments (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     department_name TEXT UNIQUE NOT NULL,
     department_description TEXT UNIQUE NOT NULL
@@ -20,7 +28,7 @@ DROP TABLE IF EXISTS employee;
 CREATE TABLE employee (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     employee_name TEXT UNIQUE NOT NULL,
-    join_data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    join_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     weekly_solary DECIMAL(9,2) DEFAULT 0.0,
     commission_per_sale INTEGER DEFAULT 0,
     hour_rate DECIMAL(9,2) DEFAULT 0.0,
@@ -31,7 +39,7 @@ CREATE TABLE employee (
 );
 
 
-INSERT INTO department (department_name, department_description) VALUES ('department 1', 'department 1 description'), ('department 2', 'department 2 description'),('department 3', 'department 3 description');
+INSERT INTO departments (department_name, department_description) VALUES ('department 1', 'department 1 description'), ('department 2', 'department 2 description'),('department 3', 'department 3 description');
 
 INSERT INTO roles (role_name) VALUES ('manager'), ('saler'), ('employee') , ('worcer');
 

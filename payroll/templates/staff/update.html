@@ -1,9 +1,10 @@
-<!-- flask_payroll/payroll/templates/staff/create.html -->
+<!-- templates/staff/update.html -->
+ 
 {% extends 'base.html' %}
 
 {% block header %}
 <div class="container">
-  <h2>{% block title %}Hire new Employee{% endblock title %}</h2>
+  <h2>{% block title %}Edit Employee{% endblock title %}</h2>
   
 </div>
 {% endblock header %}
@@ -13,22 +14,22 @@
   <form method="post">
     <div class="mb-3">
         <label for="employee_name" class="form-label">Employee name</label>
-        <input type="text" class="form-control" id="employee_name" placeholder="Enter employee name" name="employee_name">
+        <input type="text" class="form-control" id="employee_name" value="{{ request.form['employee_name'] or employee['employee_name'] }}" required  name="employee_name">
     </div>
 
 
     <div class="input-group mb-3">
         <select class="form-select" name="department_id">
-            <option selected>Choose department</option>
+            <option>Choose department</option>
             {% for item in departments %}
-            <option value="{{ item.id }}">{{ item.department_name }}</option>
+            <option value="{{item.id}}" {% if employee['department_id'] == item.id %}selected{% endif %}>{{ item.department_name }}</option>
             {% endfor %}
           </select>
         
         <select class="form-select" name="role_id">
             <option selected>Choose role</option>
             {% for item in roles %}
-            <option value="{{ item.id }}">{{ item.role_name }}</option>
+            <option value="{{ item.id }}"  {% if employee['role_id'] == item.id %}selected{% endif %}>{{ item.role_name }}</option>
             {% endfor %}
           </select>
     </div>
@@ -37,22 +38,22 @@
 
         <div class="col">
             <label for="weekly_salary" class="form-label">Weekly salary</label>
-            <input type="number" class="form-control" id="weekly_salary" placeholder="Enter weekly salary" name="weekly_salary" value="0">
+            <input type="number" class="form-control" id="weekly_salary" value="{{ request.form['weekly_salary'] or employee['weekly_salary'] }}" name="weekly_salary">
         </div>
 
         <div class="col">
             <label for="commission_per_sale" class="form-label">Commission per sale</label>
-            <input type="number" class="form-control" id="commission_per_sale" placeholder="Enter commission per sale" name="commission_per_sale" value="0">
+            <input type="number" class="form-control" id="commission_per_sale" value="{{ request.form['commission_per_sale'] or employee['commission_per_sale'] }}" name="commission_per_sale">
         </div>
 
         <div class="col">
             <label for="weekly_salary" class="form-label">Hour rate</label>
-            <input type="number" class="form-control" id="hour_rate" placeholder="Enter hour rate" name="hour_rate" value="0">
+            <input type="number" class="form-control" id="hour_rate" value="{{ request.form['hour_rate'] or employee['hour_rate'] }}"  name="hour_rate">
         </div>
     </div>
 
     <div class="form-group">
-      <input type="submit" value="Create new employee" class="btn btn-danger">
+      <input type="submit" value="Update employee" class="btn btn-danger">
     </div>
   </form>
 </div>
